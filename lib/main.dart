@@ -7,12 +7,17 @@ class FtApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // final wordPair = WordPair.random();
-    return MaterialApp(title: 'FtApp', home: RandomWords());
+    return MaterialApp(
+      title: 'FtApp',
+      home: RandomWords(),
+      theme: new ThemeData(primaryColor: Colors.white),
+    );
   }
 }
 
 class RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
+  final Set<WordPair> _saved = new Set<WordPair>();
   final _biggerFont = const TextStyle(fontSize: 18.0);
   Widget _buildSuggestions() {
     return ListView.builder(itemBuilder: (context, i) {
@@ -28,16 +33,58 @@ class RandomWordsState extends State<RandomWords> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text('ListView')),
+        appBar: AppBar(
+          title: Text('ListView'),
+          actions: <Widget>[
+            new IconButton(
+                icon: const Icon(Icons.list), onPressed: _gotoSaveList)
+          ],
+        ),
         body: _buildSuggestions(),
       );
 
-  Widget _buildRow(int i, WordPair words) => ListTile(
-        title: Text(
-          i.toString() + "  " + words.asPascalCase,
-          style: _biggerFont,
+  Widget _buildRow(int i, WordPair words) {
+    final bool saved = _saved.contains(words);
+    return ListTile(
+      title: Text(
+        i.toString() + "  " + words.asPascalCase,
+        style: _biggerFont,
+      ),
+      trailing: new Icon(
+        saved ? Icons.favorite : Icons.favorite_border,
+        color: saved ? Colors.red[300] : null,
+      ),
+      onTap: () {
+        setState(() {
+          if (saved) {
+            _saved.remove(words);
+          } else {
+            _saved.add(words);
+          }
+        });
+      },
+    );
+  }
+
+  void _gotoSaveList() {
+    Navigator.of(context)
+        .push(new MaterialPageRoute<void>(builder: (BuildContext context) {
+      final Iterable<ListTile> tiles = _saved.map((e) => new ListTile(
+            title: new Text(
+              e.asPascalCase,
+              style: _biggerFont,
+            ),
+          ));
+      final List<Widget> divided =
+          ListTile.divideTiles(context: context, tiles: tiles).toList();
+      return new Scaffold(
+        appBar: new AppBar(
+          title: const Text('Favourite'),
         ),
+        body: new ListView(children: divided),
       );
+    }));
+  }
 }
 
 class RandomWords extends StatefulWidget {
