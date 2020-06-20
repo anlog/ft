@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:flutter/material.dart';
+
+import 'intent.dart';
 
 void main() => runApp(FtApp());
 
@@ -19,6 +21,7 @@ class RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
   final Set<WordPair> _saved = new Set<WordPair>();
   final _biggerFont = const TextStyle(fontSize: 18.0);
+
   Widget _buildSuggestions() {
     return ListView.builder(itemBuilder: (context, i) {
       if (i.isOdd) return Divider();
@@ -37,7 +40,11 @@ class RandomWordsState extends State<RandomWords> {
           title: Text('ListView'),
           actions: <Widget>[
             new IconButton(
-                icon: const Icon(Icons.list), onPressed: _gotoSaveList)
+                icon: const Icon(Icons.list), onPressed: _gotoSaveList),
+            new IconButton(
+                icon: const Icon(Icons.create), onPressed: _gotoCreate),
+            new IconButton(
+                icon: const Icon(Icons.android), onPressed: _gotoAndroid)
           ],
         ),
         body: _buildSuggestions(),
@@ -85,6 +92,65 @@ class RandomWordsState extends State<RandomWords> {
       );
     }));
   }
+
+  void _gotoCreate() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (BuildContext context) {
+      return new Scaffold(
+        appBar: AppBar(title: const Text("Signature")),
+        body: new Signature(),
+      );
+    }));
+  }
+
+  void _gotoAndroid() {
+    runApp(IntentApp());
+  }
+}
+
+class Signature extends StatefulWidget {
+  SignatureState createState() => SignatureState();
+}
+
+class SignatureState extends State<Signature> {
+  List<Offset> _points = <Offset>[];
+
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onPanUpdate: (DragUpdateDetails details) {
+        setState(() {
+          RenderBox referenceBox = context.findRenderObject();
+          Offset localPosition =
+              referenceBox.globalToLocal(details.globalPosition);
+          _points = List.from(_points)..add(localPosition);
+        });
+      },
+      onPanEnd: (DragEndDetails details) => _points.add(null),
+      child: CustomPaint(
+        painter: SignaturePainter(_points),
+        size: Size.infinite,
+      ),
+    );
+  }
+}
+
+class SignaturePainter extends CustomPainter {
+  SignaturePainter(this.points);
+
+  final List<Offset> points;
+
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = Colors.black
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 5.0;
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null)
+        canvas.drawLine(points[i], points[i + 1], paint);
+    }
+  }
+
+  bool shouldRepaint(SignaturePainter other) => other.points != points;
 }
 
 class RandomWords extends StatefulWidget {
