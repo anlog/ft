@@ -2,6 +2,7 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 
 import 'intent.dart';
+import 'photo.dart';
 
 void main() => runApp(FtApp());
 
@@ -39,6 +40,8 @@ class RandomWordsState extends State<RandomWords> {
         appBar: AppBar(
           title: Text('ListView'),
           actions: <Widget>[
+            new IconButton(
+                icon: const Icon(Icons.photo), onPressed: _gotoPhoto),
             new IconButton(
                 icon: const Icon(Icons.list), onPressed: _gotoSaveList),
             new IconButton(
@@ -104,7 +107,24 @@ class RandomWordsState extends State<RandomWords> {
   }
 
   void _gotoAndroid() {
-    runApp(IntentApp());
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (BuildContext context) {
+      return IntentApp();
+    }));
+    // runApp(IntentApp());
+  }
+
+  void _gotoPhoto() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (BuildContext context) {
+      return new PhotoWidget();
+      //   return Scaffold(
+      //     appBar: AppBar(
+      //       title: const Text("Photos"),
+      //     ),
+      //     body: new PhotoWidget(),
+      //   );
+    }));
   }
 }
 
