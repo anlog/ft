@@ -137,8 +137,8 @@ class PhotoState extends State<PhotoWidget> {
   final photoUrl = 'https://web.everphoto.cn/api/users/self/updates?count=200';
 
   Future<UriTemplate> doInit() async {
-    var settingsRes = await http
-        .get(settingsUrl, headers: {'authorization': 'Bearer $_token'});
+    var settingsRes = await http.get(Uri.parse(settingsUrl),
+        headers: {'authorization': 'Bearer $_token'});
     print('settingsUrl Response status: ${settingsRes.statusCode}');
     var setRes = SettingBean.fromJson(convert.jsonDecode(settingsRes.body));
 
@@ -161,7 +161,7 @@ class PhotoState extends State<PhotoWidget> {
 //    String prev = sp.getString('_prev');
 
     var response = await http.get(
-        prev.isEmpty ? photoUrl : photoUrl + '&p=$prev',
+        Uri.parse(prev.isEmpty ? photoUrl : photoUrl + '&p=$prev'),
         headers: {'authorization': 'Bearer $_token'});
     print('photoUrl Response status: ${response.statusCode}');
     var res = PhotoBean.fromJson(convert.jsonDecode(response.body));
@@ -237,7 +237,7 @@ class LoginState extends State<LoginWidget> {
 
     final param = 'mobile=$mobile&password=$password';
     print(param);
-    var response = await http.post(url, body: param);
+    var response = await http.post(Uri.parse(url), body: param);
     print('Response status: ${response.statusCode}');
     print('Response body: ${response.body}');
     final rep = convert.jsonDecode(response.body);
